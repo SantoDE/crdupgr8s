@@ -26,6 +26,10 @@ func DownloadChart(url string) (*chart.Chart, error) {
 
 	_, err = io.Copy(file, resp.Body)
 
+	if err != nil {
+		return nil, err
+	}
+
 	chartObj, err := loader.Load(file.Name())
 
 	if err != nil {

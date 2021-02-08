@@ -14,13 +14,18 @@ func UpgradeCRDS(url string) {
 	chart, err := crds.DownloadChart(url)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatalf("Can not download Helm chart: %s", err.Error())
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	existingCrds, err := k8s.ListCRDS(ctx)
+
+	if err != nil {
+		log.Fatalf("Can not detect current existing CRDs in the cluster: %s", err.Error())
+	}
+
 	crdObjs := chart.CRDObjects()
 
 	log.Printf("Detected %d CRDs in cluster and %d in the Helm Chart", len(existingCrds), len(crdObjs))
