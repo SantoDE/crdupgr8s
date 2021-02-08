@@ -23,7 +23,13 @@ type CrdListKey struct {
 var client *clientWrapper
 
 func init() {
-	client = NewClient()
+	cl, err  := NewClient()
+
+	if err != nil {
+		log.Fatalf("Failed to initialize a Kubernetes Client to connect: %s", err.Error())
+	}
+
+	client = cl
 }
 
 
@@ -39,11 +45,8 @@ func ParseToCRD(data []byte) *apiextensionsv1beta1.CustomResourceDefinition {
 	return object
 }
 
-
 func ListCRDS(ctx context.Context) (CrdList, error) {
-
 	opts := metav1.ListOptions{}
-
 
 	crds, err := client.client.ApiextensionsV1().CustomResourceDefinitions().List(ctx, opts)
 
@@ -58,7 +61,6 @@ func ListCRDS(ctx context.Context) (CrdList, error) {
 }
 
 func Create(ctx context.Context, def *apiextensionsv1beta1.CustomResourceDefinition) {
-
 	opts := metav1.CreateOptions{}
 
 	if _, err := client.client.ApiextensionsV1beta1().CustomResourceDefinitions().Create(ctx, def, opts); err != nil {

@@ -7,35 +7,57 @@ import (
 	"path/filepath"
 
 	crdClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/util/homedir"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 type clientWrapper struct {
 	client *crdClientSet.Clientset
 }
 
-func NewClient() *clientWrapper {
-	kubeConfigPath, err := findKubeConfig()
+func NewClient() (*clientWrapper, error) {
+	var config *rest.Config
 
-	if err != nil {
-		log.Fatal(err)
+	if kubeconfig, err := findKubeConfig(); err == nil {
+		config = createClusterExternalClient(kubeconfig)
+	} else {
+		config = createClusterInternalClient()
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	if err != nil {
-		log.Fatal(err)
+	if config == nil {
+		return nil, errors.New("Can not create a K8s client")
 	}
 
 	crdClient, err := crdClientSet.NewForConfig(config)
 
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 
 	return &clientWrapper{
 		client: crdClient,
+	}, nil
+}
+
+func createClusterInternalClient() (*rest.Config) {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatal(err.Error())
+		return nil
 	}
+
+	return config
+}
+
+func createClusterExternalClient(kubeConfig string) (*rest.Config) {
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
+	if err != nil {
+		log.Fatal(err.Error())
+		return nil
+	}
+
+	return config
 }
 
 func findKubeConfig() (string, error) {
