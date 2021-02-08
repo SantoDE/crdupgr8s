@@ -10,7 +10,6 @@ import (
 )
 
 func UpgradeCRDS(url string) {
-
 	chart, err := crds.DownloadChart(url)
 
 	if err != nil {
@@ -33,7 +32,7 @@ func UpgradeCRDS(url string) {
 	for _, crd := range crdObjs {
 		obj := k8s.ParseToCRD(crd.File.Data)
 
-		if !existingCrds.InludesItem(obj.Name, obj.Spec.Group) {
+		if !existingCrds.IncludesItem(obj.Name, obj.Spec.Group) {
 			log.Printf("Detected that the CRD %s is missing in the Cluster, creating it now", obj.Name)
 			k8s.Create(ctx, obj)
 		}

@@ -83,7 +83,7 @@ func newCRDListKey(name string, group string) *CrdListKey {
 	}
 }
 
-func (l CrdList) InludesItem(name string, group string) bool {
+func (l CrdList) IncludesItem(name string, group string) bool {
 	key := newCRDListKey(name, group)
 
 	return l[key.string()] != nil
