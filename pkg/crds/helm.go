@@ -11,14 +11,13 @@ import (
 
 func DownloadChart(url string) (*chart.Chart, error) {
 
-	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	file, err := ioutil.TempFile("/tmp", "tar_")
+	file, err := ioutil.TempFile("/tmp", "chart_")
 
 	if err != nil {
 		return nil, err

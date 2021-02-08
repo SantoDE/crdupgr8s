@@ -40,9 +40,8 @@ func ParseToCRD(data []byte) *apiextensionsv1beta1.CustomResourceDefinition {
 }
 
 
-func ListCRDS() (CrdList, error) {
+func ListCRDS(ctx context.Context) (CrdList, error) {
 
-	ctx := context.Background()
 	opts := metav1.ListOptions{}
 
 
@@ -58,9 +57,8 @@ func ListCRDS() (CrdList, error) {
 	return crdList, err
 }
 
-func Create(def *apiextensionsv1beta1.CustomResourceDefinition) {
+func Create(ctx context.Context, def *apiextensionsv1beta1.CustomResourceDefinition) {
 
-	ctx := context.Background()
 	opts := metav1.CreateOptions{}
 
 	if _, err := client.client.ApiextensionsV1beta1().CustomResourceDefinitions().Create(ctx, def, opts); err != nil {

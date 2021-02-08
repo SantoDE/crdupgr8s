@@ -1,7 +1,9 @@
 package upgrader
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/SantoDE/crdupgr8s/pkg/crds"
 	"github.com/SantoDE/crdupgr8s/pkg/k8s"
@@ -15,7 +17,10 @@ func UpgradeCRDS(url string) {
 		log.Fatal(err.Error())
 	}
 
-	existingCrds, err := k8s.ListCRDS()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	existingCrds, err := k8s.ListCRDS(ctx)
 	crdObjs := chart.CRDObjects()
 
 	log.Printf("Detected %d CRDs in cluster and %d in the Helm Chart", len(existingCrds), len(crdObjs))
@@ -25,7 +30,7 @@ func UpgradeCRDS(url string) {
 
 		if !existingCrds.InludesItem(obj.Name, obj.Spec.Group) {
 			log.Printf("Detected that the CRD %s is missing in the Cluster, creating it now", obj.Name)
-			k8s.Create(obj)
+			k8s.Create(ctx, obj)
 		}
 	}
 

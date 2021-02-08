@@ -1,9 +1,13 @@
 package k8s
 
 import (
+	"errors"
+	"log"
 	"os"
+	"path/filepath"
 
 	crdClientSet "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/client-go/util/homedir"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -12,11 +16,15 @@ type clientWrapper struct {
 }
 
 func NewClient() *clientWrapper {
+	kubeConfigPath, err := findKubeConfig()
 
-	kubeConfigPath := os.Getenv("KUBECONFIG")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 
 	crdClient, err := crdClientSet.NewForConfig(config)
@@ -28,4 +36,17 @@ func NewClient() *clientWrapper {
 	return &clientWrapper{
 		client: crdClient,
 	}
+}
+
+func findKubeConfig() (string, error) {
+	env := os.Getenv("KUBECONFIG")
+	if env != "" {
+		return env, nil
+	}
+
+	if home := homedir.HomeDir(); home != "" {
+		return filepath.Join(home, ".kube", "config"), nil
+	}
+
+	return "", errors.New("can not detect a kubeconfig file")
 }
