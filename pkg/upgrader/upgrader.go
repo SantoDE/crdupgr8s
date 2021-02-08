@@ -30,7 +30,11 @@ func UpgradeCRDS(url string) {
 	log.Printf("Detected %d CRDs in cluster and %d in the Helm Chart", len(existingCrds), len(crdObjs))
 
 	for _, crd := range crdObjs {
-		obj := k8s.ParseToCRD(crd.File.Data)
+		obj, err := k8s.ParseToCRD(crd.File.Data)
+
+		if err != nil {
+			log.Fatalf("Can not parse CRDs: %s", err.Error())
+		}
 
 		if !existingCrds.IncludesItem(obj.Name, obj.Spec.Group) {
 			log.Printf("Detected that the CRD %s is missing in the Cluster, creating it now", obj.Name)

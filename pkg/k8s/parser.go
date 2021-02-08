@@ -33,16 +33,16 @@ func init() {
 }
 
 
-func ParseToCRD(data []byte) *apiextensionsv1beta1.CustomResourceDefinition {
+func ParseToCRD(data []byte) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
 	object := &apiextensionsv1beta1.CustomResourceDefinition{}
 
 	decoder := serializer.NewCodecFactory(scheme.Scheme).UniversalDecoder()
 
 	if err := runtime.DecodeInto(decoder, data, object); err != nil {
-		print(err)
+		return nil, err
 	}
 
-	return object
+	return object, nil
 }
 
 func ListCRDS(ctx context.Context) (CrdList, error) {
