@@ -14,5 +14,5 @@ func init() {
 }
 
 func RunApp() {
-	upgrader.UpgradeCRDS(urlFlag)
+	upgrader.UpgradeFromHelmChartUrl(urlFlag)
 }

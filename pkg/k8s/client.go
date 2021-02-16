@@ -40,7 +40,7 @@ func NewClient() (*clientWrapper, error) {
 	}, nil
 }
 
-func createClusterInternalClient() (*rest.Config) {
+func createClusterInternalClient() *rest.Config {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -50,7 +50,7 @@ func createClusterInternalClient() (*rest.Config) {
 	return config
 }
 
-func createClusterExternalClient(kubeConfig string) (*rest.Config) {
+func createClusterExternalClient(kubeConfig string) *rest.Config {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeConfig)
 	if err != nil {
 		log.Fatal(err.Error())
